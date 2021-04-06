@@ -41,7 +41,7 @@ def open_appointments(namespace, geolocator):
         if location['openTimeslots'] > 0:
             contents = urllib.request.urlopen(location['url']).read().decode('utf-8')
             if 'Appointments are no longer available for this location' not in contents:
-                webbrowser.open(location['url'])
+                webbrowser.open(location['url'], new=2, autoraise=False)
                 print('\n'.join(f'{k}={v}' for k, v in location.items() if k not in ['url', 'slotDetails'] and v is not None))
                 if distance is not None:
                     print(f'Distance from home: {distance.miles} miles')
@@ -71,6 +71,8 @@ if __name__ == '__main__':
         ns.latlong = (home.latitude, home.longitude)
         print(f'Looking for appointments {ns.distance} miles from {home}')
     with tqdm() as pbar:
-        while not open_appointments(ns, geolocator):
-            sleep(1)
+        while True:
+            if open_appointments(ns, geolocator):
+                sleep(10)
+            sleep(0.1)
             pbar.update(1)
